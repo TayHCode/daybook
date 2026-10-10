@@ -200,6 +200,10 @@ at commit `b0a34caa4b59e466652572310fd043a9548027c2`. The upstream Apache-2.0
 [LICENSE](LICENSE) is retained verbatim; [NOTICE](NOTICE) and
 [UPSTREAM.md](UPSTREAM.md) retain attribution. No upstream endorsement is implied.
 
+GitHub may show "no license detected" because the upstream LICENSE differs in
+three words from the canonical Apache-2.0 text. The licence is Apache-2.0; see
+[NOTICE](NOTICE) and [UPSTREAM.md](UPSTREAM.md) for attribution and provenance.
+
 Changes for daybook: explicit local input configuration, an offline daily-brief
 CLI, conservative message attribution and native-ID reconciliation, synthetic
 demo and metadata-only doctor, explicit network consent for optional model

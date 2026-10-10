@@ -146,7 +146,7 @@ class ColdStateTests(RunFixture):
                 second = daybook.run(config, self.boundary, None, now=self.now, no_model=True)
             self.assertEqual(Path(second['path']).read_bytes(), before)
             self.assertIn(b'Parser refactor is complete.', before)
-            self.assertIn(b'Unordered native-message conflicts yesterday: 0.', before)
+            self.assertNotIn(b'Unordered native-message conflicts yesterday:', before)
 
     def test_retained_mirror_handoff_survives_canonical_copy_pruning(self):
         owner = claude('Refactor parser', uuid='owner')
@@ -193,7 +193,7 @@ class ColdStateTests(RunFixture):
         save(self.root / 'claude/mirror.jsonl', [owner, alpha])
         self.run_book(no_model=True)
         self.assertIn('Parser refactor is complete.', self.artifact()['markdown'])
-        self.assertIn('Unordered native-message conflicts yesterday: 0.', self.artifact()['markdown'])
+        self.assertNotIn('Unordered native-message conflicts yesterday:', self.artifact()['markdown'])
 
 
 class DemoTests(RunFixture):

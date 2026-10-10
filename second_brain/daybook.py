@@ -398,7 +398,7 @@ def fallback_start(facts):
 
 def _fallback(facts, win, evidence=()):
     handoffs = sorted((e for e in evidence if e['kind'] == 'closing_handoff'), key=lambda e: (moment(e['event_at']), e.get('sequence', 0), e['id']), reverse=True)
-    reported = [_handoff_line(handoffs[0])] if handoffs else []
+    reported = _handoff_lines(handoffs[0]) if handoffs else []
     return {'evidence_date': win['day'].isoformat(), 'state': {'yesterday': '', 'stands': reported + facts.get('contradictions', []),
             'start_here': fallback_start(facts), 'open': [], 'deferred': [], 'sources': []}}
 
@@ -406,6 +406,14 @@ def _fallback(facts, win, evidence=()):
 def _handoff_line(event):
     label = 'conflict, unverified' if event.get('verification') == 'conflict' else 'unverified'
     return 'Latest assistant handoff (' + label + '): ' + _line(event['text'][:1000])
+
+
+def _handoff_lines(event):
+    lines = [_handoff_line(event)]
+    if event.get('verification') == 'conflict':
+        lines.extend('a competing handoff from ' + _line(copy['source']) + ' also exists: ' +
+                     _line(copy['text'][:1000]) for copy in event.get('competing_handoffs', []))
+    return lines
 
 
 def _partial_reasons(coverage):
@@ -542,7 +550,8 @@ def format_brief(win, registry, facts, states, overview, extra_evidence, coverag
     duplicates = sum(c.get('duplicate_rows_yesterday', 0) for tools in coverage.get('sessions', {}).values() for c in tools.values())
     lines.append(f'Duplicate transcript rows excluded yesterday: {duplicates}. Native message IDs are reconciled before content hashes. Same-file streams use the last occurrence; observed corrections supersede stale mirrors. Unordered disagreements between files remain conflicts. Distinct native IDs survive. The previous contributing copy keeps source credit while available. Current collection diagnostics are in cache/sessions/diagnostics.json; snapshot counts remain as of the last content change.')
     conflicts = sum(c.get('version_conflicts_yesterday', 0) for tools in coverage.get('sessions', {}).values() for c in tools.values())
-    lines.append(f'Unordered native-message conflicts yesterday: {conflicts}. Conflicting user text is excluded from owner evidence; ambiguous assistant handoffs remain visible with a conflict label.')
+    if conflicts > 0:
+        lines.append(f'Unordered native-message conflicts yesterday: {conflicts}. Conflicting user text is excluded from owner evidence; ambiguous assistant handoffs remain visible with a conflict label.')
     for label, entry in states.items():
         sample = entry.get('sampling')
         if sample:
@@ -712,7 +721,7 @@ def _run(config, boundary, model, date, now, root, stages, retry_failed, no_mode
         handoffs = [e for e in evidence if e['project'] == label and e['kind'] == 'closing_handoff']
         latest = max(handoffs, key=lambda e: (moment(e['event_at']), e.get('sequence', 0), e['id']), default=None)
         if latest and latest.get('verification') == 'conflict':
-            entry['state']['stands'] = list(dict.fromkeys(entry['state'].get('stands', []) + [_handoff_line(latest)]))
+            entry['state']['stands'] = list(dict.fromkeys(entry['state'].get('stands', []) + _handoff_lines(latest)))
         if contradictions:
             entry['state']['stands'] = list(dict.fromkeys(entry['state'].get('stands', []) + contradictions))
             entry['state']['start_here'] = truthfulness.preferred_start(facts[label], entry['state']['start_here'])

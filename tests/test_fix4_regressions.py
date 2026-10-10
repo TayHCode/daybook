@@ -66,7 +66,7 @@ class StreamTests(RunFixture):
             self.assertNotIn(b'Intermediate chunk', before)
             artifact = read(Path(first['path']).with_suffix('.json'))
             self.assertEqual(artifact['coverage']['sessions']['machine-a']['claude']['version_conflicts_yesterday'], 0)
-            self.assertIn(b'Unordered native-message conflicts yesterday: 0.', before)
+            self.assertNotIn(b'Unordered native-message conflicts yesterday:', before)
             self.assertEqual(artifact['facts']['demo']['yesterday']['owner_messages_total'], 1)
 
     def test_fresh_streamed_briefs_with_shuffled_sources_and_equal_mtimes(self):

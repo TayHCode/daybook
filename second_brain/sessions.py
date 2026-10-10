@@ -335,12 +335,14 @@ def _reconcile(collected, registry, win, old_origins, old_versions):
     groups = {}
     for file, entry in collected:
         meta = entry['meta']
+        session = _file_identity(file)[:16]
         messages = {r['line']: r for r in entry['messages']}
         for row in entry['attributions']:
             if win['lookback_start'] <= moment(row['at']) < win['now']:
                 project = row.get('project') or registry.resolve(row.get('cwd', meta['cwd']), file['machine'])
                 identity = _row_identity(project, meta, row)
                 groups.setdefault(identity, []).append({'origin': _file_identity(file), 'row': row,
+                    'source': 'session:' + session + ':' + str(row['line']),
                     'message': messages.get(row['line']), 'project': project or row.get('cwd', meta['cwd'])})
     # Hash fallback also covers an ID-less mirror of a single identified turn.
     native = {}
@@ -417,7 +419,14 @@ def _reconcile(collected, registry, win, old_origins, old_versions):
                               'superseded': sorted(retired)}
         if message:
             message['line'] = row['line']
-        selected[identity] = {**anchor, 'row': row, 'message': message, 'conflict': conflict}
+        competing = {}
+        if conflict and row['role'] == 'assistant':
+            for copy in sorted(copies, key=lambda c: (c['row']['content_key'], c['origin'])):
+                if copy['message'] and copy['row']['content_key'] != chosen:
+                    competing.setdefault(copy['row']['content_key'],
+                                         {'source': copy['source'], 'text': copy['message']['text']})
+        selected[identity] = {**anchor, 'row': row, 'message': message, 'conflict': conflict,
+                              'competing_handoffs': list(competing.values())}
         origins[identity] = anchor['origin']
     return selected, origins, versions, aliases
 
@@ -548,6 +557,8 @@ def collect(config, registry, win, boundary, cache_dir):
                      'verification': 'conflict' if chosen['conflict'] else 'reported', 'machine': machine, 'tool': tool,
                      'session': session, 'sequence': row.get('sequence', row['line']), 'period': period(at, win),
                      'attribution': message['attribution']}
+            if chosen['competing_handoffs']:
+                event['competing_handoffs'] = chosen['competing_handoffs']
             if allowed(boundary, event):
                 evidence.append(event)
         for result in entry.get('test_results', []):
