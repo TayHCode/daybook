@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "daybook-core"
+version = "0.1.0"
+description = "Local daily briefs from git repositories and AI-agent transcripts"
+requires-python = ">=3.11"
+classifiers = ["Operating System :: POSIX :: Linux", "Operating System :: MacOS"]
+license = {text = "Apache-2.0"}
+
+[project.scripts]
+daybook = "second_brain.cli:main"
+
+[tool.setuptools]
+packages = ["second_brain"]

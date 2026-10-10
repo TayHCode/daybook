@@ -1,0 +1,10 @@
+Engineering Notebook
+Original project: prime-radiant-inc/engineering-notebook
+https://github.com/prime-radiant-inc/engineering-notebook
+Licensed under Apache License 2.0; see LICENSE.
+
+Second Brain brief modules are independent derivative additions.
+
+Daybook core is a smaller independent CLI distribution. Files marked as modified
+were adapted for explicit local input, conservative attribution, private extension
+separation, synthetic setup and optional consent-based model summarization.

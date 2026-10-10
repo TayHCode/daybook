@@ -1,0 +1,89 @@
+{
+  "stdlib_only": true,
+  "exclude": [],
+  "approvals": [],
+  "quickstart": [
+    {
+      "file": "README.md",
+      "line": 214,
+      "argv": [
+        "python",
+        "-m",
+        "pip",
+        "install",
+        "."
+      ]
+    },
+    {
+      "file": "README.md",
+      "line": 215,
+      "argv": [
+        "daybook",
+        "demo",
+        "--out",
+        "daybook-demo"
+      ]
+    },
+    {
+      "file": "README.md",
+      "line": 216,
+      "argv": [
+        "daybook",
+        "doctor",
+        "--config",
+        "daybook-demo/config.json"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "role": "tests",
+      "file": "README.md",
+      "line": 217,
+      "argv": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-q"
+      ]
+    },
+    {
+      "role": "syntax",
+      "file": "README.md",
+      "line": 218,
+      "argv": [
+        "python",
+        "-m",
+        "compileall",
+        "-q",
+        "second_brain",
+        "tests"
+      ]
+    }
+  ],
+  "license_owner_disposition": {
+    "reviewed": true,
+    "spdx": "Apache-2.0",
+    "path": "LICENSE",
+    "source_url": "https://github.com/prime-radiant-inc/engineering-notebook",
+    "upstream_commit": "b0a34caa4b59e466652572310fd043a9548027c2",
+    "sha256": "9177a3b208fb5034ae89ec90ed3c1f4192ca6825ef19699f5d62beace22bcbf5",
+    "differences": [
+      {
+        "canonical": "submitted to Licensor",
+        "upstream": "submitted to the Licensor"
+      },
+      {
+        "canonical": "received by Licensor",
+        "upstream": "received by the Licensor"
+      },
+      {
+        "canonical": "within such NOTICE file, excluding those notices",
+        "upstream": "within such NOTICE file, excluding any notices"
+      }
+    ]
+  }
+}
