@@ -76,7 +76,7 @@ membership for each collected commit), status
 paths, commit times/authors/subjects and optional remote identity;
 it never fetches, pushes or modifies your selected repositories. Transcript collection
 reads message text and session cwd/branch/timestamp/provenance fields; bounded caches
-retain selected text for ten days. A same-day git snapshot is reused until
+retain selected text for at least ten days and the configured catch-up window. A same-day git snapshot is reused until
 `brief --refresh-local`. Transcript payload hashes detect supported corrections.
 Source stamps include size, nanosecond modification/change times, inode and a content
 probe: every byte up to 1 MiB, or head/tail and three interior samples above that.
@@ -93,6 +93,55 @@ invocation, or select a network plugin and pass that flag. Installing uv/Python/
 dependencies may access package registries. Their downloads are separate from evidence
 processing. The core installs no services, scheduled tasks, browser integrations,
 telemetry, accounts or automatic posting.
+
+## Catch up after a gap
+
+Every brief starts with **Check you didn't drop anything**, even with `--model none`.
+`catchup_days` defaults to 4 (1–14). It sets the recent evidence and missing-brief
+lookback before the delivery date. A reminder becomes **Stale** after more than
+`catchup_days` calendar days without new activity. Unresolved reminders never
+expire. This age starts at the reminder's first evidence date; an observed new
+git commit resets it, but repeating the same evidence does not. `active_days`
+separately sets standing context. Prior open, deferred and start-here items keep
+stable IDs. “Carried N days” counts calendar days from first seen to this brief's
+delivery date. Deferred items stay deferred.
+
+Dirty worktrees, ahead branches, branches with no upstream or collected PR/merge
+evidence, and session questions or explicit “Next:” cues also appear. No upstream
+means publication is unknown. Missing briefs are labelled for the entire reminder
+lookback: Monday's four-day list includes Thursday, even if a Friday brief exists.
+On Monday, `--date yesterday` covers the gap since the last complete brief, usually
+Friday–Sunday, with session dates shown. An explicit `--date YYYY-MM-DD` stays a
+single day. Old reminders move to **Stale** instead of disappearing. Deleting the
+newest brief or a failed run cannot erase the separate carry-over file.
+`runtime_dir` in your config selects the local runtime folder; the file is
+`state/catchup.json` inside it. In this demo, `runtime_dir` is `daybook-demo/state`,
+so keep `daybook-demo/state/state/catchup.json` with your other local state.
+
+A reminder leaves the list only with matching evidence: a clean worktree with a
+new commit, fresh caught-up upstream tracking, a matching merge, or an exact
+`Done: <reminder text or ID>` (also `Completed:`, `Resolved:` or `Finished:`) in a
+commit or a session's human message or assistant handoff. Assistant completion
+reports remain labelled as unverified. Generic “done” and missing evidence cannot
+resolve arbitrary tasks. Resolutions appear once under **Resolved since**.
+`--refresh-local` checks current git status; tracking still reflects your own last
+fetch. No extra model calls or network access are required.
+
+After installing, try the fixed Friday/Saturday/Sunday/Monday synthetic timeline
+in UTC. It includes an older stale reminder. The second command rechecks current
+local git and Monday's fixed-time inputs. It reuses the saved brief when nothing
+changes; identical output is expected in this demo. There is no separate refresh
+or replay marker in the printed brief:
+
+```sh
+.venv/bin/daybook demo --out daybook-demo
+.venv/bin/daybook brief --config daybook-demo/config.json --model none --refresh-local --date yesterday --now 2026-10-12T09:00:00Z
+```
+
+`--now` fixes the clock for demonstrations and requires an ISO timestamp with a
+timezone. Choose a new demo folder if you already have an older demo. For your
+own inputs, omit `--now`; change `catchup_days` in your config only if you want a
+lookback other than four days. Your config's `timezone` controls day boundaries.
 
 ## Optional model summaries
 

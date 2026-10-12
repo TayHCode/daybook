@@ -8,7 +8,7 @@ import json
 import os
 from pathlib import Path
 import time
-from . import truthfulness, authorship, compaction, dayconfig, sources, localgit, sessions
+from . import truthfulness, authorship, compaction, dayconfig, sources, localgit, sessions, catchup
 from .dayconfig import moment
 from .projects import Registry, active_set
 from .calls import Ledger
@@ -332,7 +332,7 @@ def build_facts(registry, session_rows, evidence, standing_sources, standing_loc
                 at = moment(counts['last_at'])
                 if counts['owner_messages']:
                     bump(moment(counts.get('last_owner_at', counts['last_at'])), 'owner_messages', counts['owner_messages'])
-                p = 'yesterday' if day == win['day'].isoformat() else 'today' if day == win['end'].date().isoformat() else None
+                p = 'yesterday' if win['start'].date().isoformat() <= day < win['end'].date().isoformat() else 'today' if day == win['end'].date().isoformat() else None
                 if p is None or not counts['owner_messages']:
                     continue
                 owner_counts = {'owner_messages': counts['owner_messages'],
@@ -431,7 +431,7 @@ def _line(value):
     return str(value or '').replace('\n', ' ').replace('\r', ' ').replace('|', '\\|')
 
 
-def format_brief(win, registry, facts, states, overview, extra_evidence, coverage, config):
+def format_brief(win, registry, facts, states, overview, extra_evidence, coverage, config, reminders=None):
     active, worked, parked, dormant = active_set(registry, facts, win, config)
     order = list(dict.fromkeys([l for l in overview.get('order', []) if l in active] + active))
     def title(label):
@@ -447,7 +447,7 @@ def format_brief(win, registry, facts, states, overview, extra_evidence, coverag
     partial = bool(coverage.get('failures') or coverage.get('deferred_projects') or coverage.get('model', {}).get('corrections'))
     delivery = win['end']
     lines = [f"# Daybook — {delivery.strftime('%A, %B')} {delivery.day}, {delivery.year}",
-             f"Covers {win['day']} ({config['timezone']}). {len(active)} active projects, {len(worked)} worked yesterday." + (' Partial coverage.' if partial else ''), '', '## Yesterday']
+             f"Covers {win['start'].date()}–{win['day']} ({config['timezone']}). {len(active)} active projects, {len(worked)} worked yesterday." + (' Partial coverage.' if partial else ''), '', catchup.markdown(reminders) if reminders is not None else '', '', '## Yesterday']
     if overview.get('headline'):
         lines.append(overview['headline'])
     for label in (l for l in order if l in worked):
@@ -470,7 +470,7 @@ def format_brief(win, registry, facts, states, overview, extra_evidence, coverag
         def session_line(s):
             first = moment(s['first_at']).astimezone(win['zone']).strftime('%H:%M')
             last = moment(s['last_at']).astimezone(win['zone']).strftime('%H:%M')
-            return f"  - {s['machine']} {s['tool']} {first}–{last} {', '.join(s['branches']) or 'branch unknown'} — {s['owner_messages']}"
+            return f"  - {moment(s['first_at']).astimezone(win['zone']).strftime('%a %Y-%m-%d')} {s['machine']} {s['tool']} {first}–{last} {', '.join(s['branches']) or 'branch unknown'} — {s['owner_messages']}"
         normal = [s for s in f['sessions'] if not s['subagent']]
         bounded(normal, f['sessions_total'] - f.get('subagent_sessions_total', 0), 6, session_line)
         if f.get('subagent_sessions_total'):
@@ -624,8 +624,10 @@ def _input_mark(config, facts, evidence, extra_evidence):
 def _run(config, boundary, model, date, now, root, stages, retry_failed, no_model, refresh_sources, refresh_local):
     started = time.monotonic()
     win = dayconfig.window(config, date, now)
+    briefs, history_failures = catchup.history(root, win['delivery'])
+    win = catchup.widen(win, date, briefs)
     coverage = {'sessions': {}, 'catalog': {}, 'localgit': {}, 'model': {},
-                'unassigned': {'count': 0, 'cwd_labels': []}, 'deferred_projects': [], 'failures': [], 'limits': [], 'timings': stages.timings}
+                'unassigned': {'count': 0, 'cwd_labels': []}, 'deferred_projects': [], 'failures': history_failures, 'limits': [], 'timings': stages.timings}
     def stage(name, call, default):
         try:
             with stages.at(name):
@@ -651,10 +653,14 @@ def _run(config, boundary, model, date, now, root, stages, retry_failed, no_mode
         return discovered
     local_repos = stage('collect.localgit', discover_local, [])
     registry = Registry(config, repositories, local_repos, boundary)
-    session_rows, evidence, coverage['sessions'] = stage('collect.sessions', lambda: sessions.collect(config, registry, win, boundary, root / 'cache/sessions'), ([], [], {}))
+    session_config = {**config, 'evidence_retention_days': max(config['evidence_retention_days'],
+        config['catchup_days'], (win['now'].date() - win['start'].date()).days + 1)}
+    session_rows, evidence, coverage['sessions'] = stage('collect.sessions', lambda: sessions.collect(session_config, registry, win, boundary, root / 'cache/sessions'), ([], [], {}))
+    local_cache = root / 'cache/localgit' / ('v4.' + win['now'].date().isoformat() + '.' + win['start'].date().isoformat() + '.' + win['day'].isoformat() + '.json')
+    fresh_local = refresh_local or not local_cache.is_file()
     local_evidence, local_standing, coverage['localgit'] = stage('collect.localgit', lambda: localgit.collect(
         {**config, '_session_cwds': [s['cwd_label'] for s in session_rows]}, registry, win, boundary,
-        root / 'cache/localgit' / ('v3.' + win['now'].date().isoformat() + '.json'), refresh=refresh_local), ([], {}, {}))
+        local_cache, refresh=refresh_local), ([], {}, {}))
     source_evidence, source_standing, coverage['catalog'] = stage('collect.sources', lambda: sources.collect(config, registry, repositories, win, reader), ([], {}, {}))
     evidence += local_evidence + source_evidence
     coverage['extensions'] = boundary.tree(reader.data)
@@ -700,6 +706,20 @@ def _run(config, boundary, model, date, now, root, stages, retry_failed, no_mode
     for label, entry in states.items():
         if entry['state']['start_here'].get('source') == 'rule':
             entry['mark'] = _project_mark(facts[label], [e for e in evidence if e['project'] == label])
+    carry_path = root / 'state/catchup.json'
+    saved_carry = read(carry_path, {})
+    # A model can save its project state before an interrupted brief delivery.
+    recovered = {p.stem: read(p, {}) for p in (root / 'state').glob('*.json') if p.name != 'catchup.json'}
+    recovery = [{'states': recovered}] if recovered else []
+    briefs_for_carry = briefs + recovery
+    # Checkpoint before optional model calls and before either brief artifact.
+    saved_carry, _ = catchup.reconcile(saved_carry, briefs_for_carry, states, local_standing, source_standing,
+                                      evidence, win, config, fresh_local=fresh_local)
+    saved_carry = boundary.tree(saved_carry)
+    if not allowed(boundary, saved_carry):
+        raise ValueError('Catch-up state rejected')
+    if saved_carry != read(carry_path, {}):
+        write(carry_path, saved_carry)
     overview = {'headline': '', 'order': active}
     usage = []
     if reuse_model:
@@ -726,17 +746,25 @@ def _run(config, boundary, model, date, now, root, stages, retry_failed, no_mode
             entry['state']['stands'] = list(dict.fromkeys(entry['state'].get('stands', []) + contradictions))
             entry['state']['start_here'] = truthfulness.preferred_start(facts[label], entry['state']['start_here'])
     coverage['model'].update(input_mark=input_mark, enabled=not no_model)
-    mark = fingerprint([facts, states, overview, extra_evidence, _stable_coverage(coverage)])
-    if existing and existing.get('mark') == mark and not coverage['model'].get('calls'):
+    carry, reminders = catchup.reconcile(saved_carry, briefs_for_carry, states, local_standing, source_standing,
+                                          evidence, win, config, fresh_local=fresh_local)
+    carry, reminders = boundary.tree(carry), boundary.tree(reminders)
+    if not allowed(boundary, carry) or not allowed(boundary, reminders):
+        raise ValueError('Catch-up state rejected')
+    if carry != saved_carry:
+        write(carry_path, carry)
+    mark = fingerprint([facts, states, overview, extra_evidence, _stable_coverage(coverage), reminders])
+    if existing and existing.get('mark') == mark and not coverage['model'].get('calls') and path.with_suffix('.md').is_file():
         return {'status': 'unchanged', 'calls': 0, 'partial': existing['partial'], **_partial_reasons(coverage),
                 'path': str(path.with_suffix('.md')), 'timings': coverage['timings']}
     with stages.at('format_brief'):
-        markdown = format_brief(win, registry, facts, states, overview, extra_evidence, coverage, config)
+        markdown = format_brief(win, registry, facts, states, overview, extra_evidence, coverage, config, reminders)
     partial = bool(coverage['failures'] or coverage['deferred_projects'] or coverage['model'].get('corrections'))
     artifact = {'date': win['delivery'], 'evidence_date': win['day'].isoformat(), 'timezone': config['timezone'],
                 'generated_at': win['now'].isoformat(), 'mark': mark, 'partial': partial, 'active': active,
                 'worked_yesterday': worked, 'parked': parked, 'dormant_count': dormant, 'facts': facts,
                 'states': states, 'overview': overview, 'coverage': coverage, 'usage': usage,
+                'catchup': reminders, 'window': {k: win[k].isoformat() for k in ('start', 'end')},
                 'markdown': markdown}
     artifact = reader.finish(boundary.tree(artifact))
     artifact = boundary.tree(artifact)

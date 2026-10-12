@@ -8,12 +8,12 @@ import re
 from zoneinfo import ZoneInfo
 
 DEFAULTS = {
-    'timezone': 'UTC', 'active_days': 7, 'context_days': 1,
+    'timezone': 'UTC', 'active_days': 7, 'context_days': 1, 'catchup_days': 4,
     'display_names': 'safe', 'projects': [], 'machines': [], 'injected_patterns': [],
     'catalog': {'include_forks': False, 'ignore': [], 'pin': []},
     'local': {'machine': 'local', 'repo_roots': [], 'max_worktrees_per_repo': 80},
     'workspace_patterns': ['**/worktrees/{project}/*', '**/projects/{project}', '**/repos/{project}', '**/REPOS/{project}', '**/.t3/worktrees/{project}/*', '**/REPOS/.worktrees/{project}/*'],
-    'plugins': [], 'model': 'none', 'model_timeout': 120, 'worker_seconds': 900,
+    'plugins': [], '_allow_network': False, 'model': 'none', 'model_timeout': 120, 'worker_seconds': 900,
     'max_project_calls': 12, 'project_max_chars': 60000, 'overview_max_chars': 60000,
     'max_transcript_files': 4000, 'max_line_bytes': 2000000,
     'evidence_retention_days': 10, 'facts_list_cap': 30, 'git_timeout': 20,
@@ -39,6 +39,8 @@ def configure(value):
         minimum = 0 if key in ('context_days', 'max_project_calls') else 1
         if type(config[key]) is not int or config[key] < minimum:
             raise ValueError(key)
+    if type(config['catchup_days']) is not int or not 1 <= config['catchup_days'] <= 14:
+        raise ValueError('catchup_days')
     try:
         ZoneInfo(config['timezone'])
         for pattern in config['injected_patterns']:
@@ -78,7 +80,7 @@ def window(config, date, now):
     start = datetime.combine(day, datetime.min.time(), zone)
     end = datetime.combine(day + timedelta(days=1), datetime.min.time(), zone)
     return {'zone': zone, 'day': day, 'start': start, 'end': end,
-            'lookback_start': start - timedelta(days=config['active_days'] - 1),
+            'lookback_start': start - timedelta(days=max(config['active_days'], config['catchup_days']) - 1),
             'delivery': end.date().isoformat(), 'now': now}
 
 

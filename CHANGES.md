@@ -41,3 +41,13 @@ files retain an explicitly marked assistant handoff without crediting user text.
 JSON run results include content-free partial-reason codes, including missing CLIs.
 Synthetic regressions cover stream order, cold-state permutations, rewrites and routing;
 expected negative-test diagnostics are captured and checked without polluting suite logs.
+
+Deterministic catch-up reminders retain stable IDs across weekend gaps, missing
+briefs, shortened horizons and interrupted runs. Explicit matching evidence
+resolves an item once; old unresolved items remain in a stale section. Monday
+briefs widen across the gap and label session days. The synthetic demo covers
+Friday through Monday; --now enables fixed-time local reproductions.
+
+Catch-up examples define the reminder lookback, calendar carry counts, state file
+location and matching human/assistant resolution evidence. The demo shows stale
+items and the fixed-time command also refreshes current local git.

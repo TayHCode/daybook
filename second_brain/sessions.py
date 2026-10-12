@@ -538,7 +538,7 @@ def collect(config, registry, win, boundary, cache_dir):
             if owner:
                 counts['first_owner_at'] = min(counts.get('first_owner_at', row['at']), row['at'])
                 counts['last_owner_at'] = max(counts.get('last_owner_at', ''), row['at'])
-            if not project or not win['start'] - timedelta(days=config['context_days']) <= at < win['now']:
+            if not project or not min(win['start'] - timedelta(days=config['context_days']), win['end'] - timedelta(days=config['catchup_days'])) <= at < win['now']:
                 continue
             source = 'session:' + session + ':' + str(row['line'])
             if row.get('claims') and not chosen['conflict']:
@@ -564,7 +564,7 @@ def collect(config, registry, win, boundary, cache_dir):
         for result in entry.get('test_results', []):
             at = moment(result['at'])
             project = result.get('project') or registry.resolve(result.get('cwd', meta['cwd']), machine)
-            if project and win['start'] - timedelta(days=config['context_days']) <= at < win['now']:
+            if project and min(win['start'] - timedelta(days=config['context_days']), win['end'] - timedelta(days=config['catchup_days'])) <= at < win['now']:
                 event = {'id': fingerprint([session, result['line'], result])[:20],
                          'source': 'session:' + session + ':' + str(result['line']),
                          'project': project, 'session': session, 'event_at': result['at'],
@@ -578,11 +578,11 @@ def collect(config, registry, win, boundary, cache_dir):
             if not allowed(boundary, record):
                 continue
             sessions.append(record)
-            yesterday = record['days'].get(win['day'].isoformat(), {})
+            yesterday = [v for d, v in record['days'].items() if win['start'].date().isoformat() <= d < win['end'].date().isoformat()]
             if yesterday:
                 yesterday_records.append(record)
-                cov['owner_messages_yesterday'] += yesterday['owner_messages']
-            if not record['project'] and yesterday.get('owner_messages'):
+                cov['owner_messages_yesterday'] += sum(v['owner_messages'] for v in yesterday)
+            if not record['project'] and any(v.get('owner_messages') for v in yesterday):
                 cov['unassigned']['count'] += 1
                 cov['unassigned']['cwd_labels'] = list(dict.fromkeys(
                     cov['unassigned']['cwd_labels'] + [record['cwd_label']]))[:10]

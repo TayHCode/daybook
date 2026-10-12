@@ -58,6 +58,7 @@ def main(argv=None):
         p = sub.add_parser(command); p.add_argument('--config', type=Path, default=Path('daybook.json'))
         if command == 'brief':
             p.add_argument('--date', default='yesterday')
+            p.add_argument('--now', help='Use a fixed ISO timestamp with timezone for synthetic timelines')
             p.add_argument('--model', choices=('none', 'claude', 'codex'))
             p.add_argument('--allow-network', action='store_true', help='Permit selected evidence to be sent by your CLI and network plugins for this invocation')
             p.add_argument('--refresh-local', action='store_true')
@@ -91,12 +92,15 @@ def main(argv=None):
             if args.model is not None:
                 config['model'] = args.model
             config = dayconfig.configure(config)
+            now = dayconfig.moment(args.now) if args.now else None
+            if args.now and now is None:
+                raise ValueError('now requires an ISO timestamp with timezone')
             boundary = Boundary(config.get('privacy', {}))
             model = None
             if config['model'] != 'none':
                 from .model import CLIModel
                 model = CLIModel(boundary, config)
-            result = daybook.run(config, boundary, model, args.date,
+            result = daybook.run(config, boundary, model, args.date, **({'now': now} if now else {}),
                                   no_model=config['model'] == 'none', refresh_sources=True,
                                   refresh_local=args.refresh_local, retry_failed=args.retry_failed,
                                   debug_stages=args.debug_stages)

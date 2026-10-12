@@ -171,6 +171,15 @@ def collect(config, registry, win, boundary, cache_file, refresh=False, run=None
             if repo['worktrees_total'] > len(trees):
                 coverage['limits'].append('local.worktrees:' + label)
             by_branch = {b['name']: b for b in refs}
+            primary = next((b['name'] for b in refs if b['name'] in ('main', 'master', 'trunk')), None)
+            for ref in refs:
+                ref['merged_into_primary'] = False
+                if primary and ref['name'] != primary:
+                    try:
+                        git(['merge-base', '--is-ancestor', ref['head'], primary], repo['path'], config, run)
+                        ref['merged_into_primary'] = True
+                    except RuntimeError:
+                        pass
             safe_refs = boundary.tree(refs)
             standing[label]['branches'] = safe_refs
             cwd_labels = set(config.get('_session_cwds', []))
