@@ -10,7 +10,7 @@ from tests.test_daybook_run import RunFixture
 
 class AttributionTests(RunFixture):
     def test_native_unmarked_relays_and_verified_echoes_in_both_formats(self):
-        # These are the review-3 adversarial.py envelopes/relay variations.
+
         for tool, make in [('claude', claude), ('codex', codex)]:
             for variant in ('Synthetic request alpha', ' SYNTHETIC\n request ALPHA ',
                             'Synthetic request alpha!'):

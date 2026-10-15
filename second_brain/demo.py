@@ -61,13 +61,13 @@ def generate(destination):
     config = {'runtime_dir': str(destination / 'state'), 'timezone': 'UTC', 'model': 'none',
               'machines': [{'name': 'local', 'claude': [str(transcripts)], 'codex': [str(transcripts)]}],
               'local': {'machine': 'local', 'repo_roots': [str(repo.parent)]}}
-    # An older reminder illustrates that unresolved work ages instead of vanishing.
+
     write(destination / 'state/briefs/2026-10-06.json', {
         'date': '2026-10-06', 'evidence_date': '2026-10-06', 'partial': False,
         'states': {'sample-app': {'evidence_date': '2026-10-06', 'state': {
             'open': ['Decide whether to extend synthetic parser examples.'], 'deferred': [],
             'start_here': {'step': '', 'where': {}, 'sources': []}}}}})
-    # A synthetic Friday brief deliberately precedes the missing weekend briefs.
+
     write(destination / 'state/briefs/2026-10-09.json', {
         'date': '2026-10-09', 'evidence_date': '2026-10-09', 'partial': False,
         'states': {'sample-app': {'evidence_date': '2026-10-09', 'state': {

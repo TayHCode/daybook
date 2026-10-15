@@ -317,7 +317,7 @@ def build_facts(registry, session_rows, evidence, standing_sources, standing_loc
                 bump(at, 'activity')
             if key and p in sections:
                 sections[p][key].append(item)
-        # Map collected commits to git checkouts independently of session activity.
+
         for p, section in sections.items():
             for tree in standing['worktrees']:
                 matching = [c for c in section['commits'] if
@@ -363,7 +363,7 @@ def build_facts(registry, session_rows, evidence, standing_sources, standing_loc
                         section['commit_additions'] = sum(r.get('additions', 0) for r in value)
                         section['commit_deletions'] = sum(r.get('deletions', 0) for r in value)
                     section[key] = value[:cap]
-        # Today is represented by counts; detailed evidence remains in prompts.
+
         truthfulness.assess(facts[label], relevant)
         facts[label]['today'] = {k: v for k, v in sections['today'].items() if not isinstance(v, (list, dict))}
     return facts

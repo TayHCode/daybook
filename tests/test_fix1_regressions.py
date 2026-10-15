@@ -128,7 +128,7 @@ sys.meta_path.insert(0, RejectFcntl())
         link.symlink_to(target, target_is_directory=True)
         config = generate(link / 'demo')
         self.assertTrue(Path(config['runtime_dir']).is_relative_to((link / 'demo').resolve()))
-        # Use real local reads for the invented repo rather than RunFixture's adapters.
+
         with patch('second_brain.daybook.localgit.discover', wraps=self._real_discover), \
              patch('second_brain.daybook.localgit.collect', wraps=self._real_collect):
             result = daybook.run(config, self.boundary, None, now=DEMO_NOW, no_model=True)

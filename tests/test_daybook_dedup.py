@@ -56,11 +56,11 @@ class DedupTests(RunFixture):
                         self.assertEqual([e['text'] for e in evidence if e['kind'] == 'owner_message'], ['Synthetic request bravo'])
                         self.assertEqual(sum(c['duplicate_rows_yesterday'] for t in coverage.values() for c in t.values()), 1)
                         corrected = snapshot()
-                        # A newly arriving stale copy and fresh mtime must not win.
+
                         save(stale.parent / '0-late-stale.jsonl', meta + [old])
                         os.utime(stale, None)
                         self.assertEqual((run()['status'], snapshot()), ('unchanged', corrected))
-                        # Converge either copy first, preserving canonical source credit.
+
                         for path in (stale, stale.parent / '0-late-stale.jsonl'):
                             save(path, meta + [new])
                             result = run()

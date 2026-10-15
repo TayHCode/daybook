@@ -247,7 +247,7 @@ class RunTests(RunFixture):
         self.assertEqual((result['status'], result['calls']), ('refreshed', 0))
         self.assertEqual(self.artifact()['states'], artifact['states'])
         self.assertEqual(self.artifact()['facts']['demo']['yesterday']['owner_messages_total'], 2)
-        # Force a coverage refresh with the transcript now entirely cached.
+
         with patch('second_brain.daybook.localgit.collect', return_value=([], {}, {'note': 'Updated coverage'})):
             self.run_book()
         self.assertIn('| machine-a | 1 | 0 |', self.artifact()['markdown'])

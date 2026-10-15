@@ -75,7 +75,7 @@ def _source_stamp(path, stat=None):
         if size <= 1024 * 1024:
             digest.update(handle.read(size))
         else:
-            # Head, tail and evenly spaced interior samples (at most 320 KiB).
+
             width = 64 * 1024
             for offset in (0, size // 4, size // 2, 3 * size // 4, size - width):
                 handle.seek(offset)
