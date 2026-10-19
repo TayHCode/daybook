@@ -1,0 +1,16 @@
+Command: python3 -c import sys; sys.path.insert(0, 'formal'); from probe import run; run()
+1. Enter provider, then terminate process without finally: provider_entries=1, durable_attempts=0, authorized_limit=1
+COUNTEREXAMPLE: provider entry lacks a unique durable authorized attempt; 1. Enter provider, then terminate process without finally
+2. Restart without --retry-failed: provider_entries=2, durable_attempts=1, authorized_limit=1
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0, 'formal'); from probe import run; run()
+                                                                     ~~~^^
+  File "~/projects/publication-daybook-20261018/formal/probe.py", line 95, in run
+    verify(root, 1, '2. Restart without --retry-failed')
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "~/projects/publication-daybook-20261018/formal/probe.py", line 80, in verify
+    raise RuntimeError('COUNTEREXAMPLE: provider entry lacks a unique durable authorized attempt; ' + story)
+RuntimeError: COUNTEREXAMPLE: provider entry lacks a unique durable authorized attempt; 2. Restart without --retry-failed
+
+Exit: 1

@@ -1,0 +1,10 @@
+Command: python3 -m unittest discover -s tests -q
+{"stage": "write.daybook", "error_type": "OSError", "message": "The operation failed; check the reported stage and selected inputs. Raw error content is withheld."}
+{"stage": "collect.localgit", "error_type": "OSError", "message": "The operation failed; check the reported stage and selected inputs. Raw error content is withheld."}
+{"stage": "write.daybook", "error_type": "OSError", "message": "The operation failed; check the reported stage and selected inputs. Raw error content is withheld."}
+----------------------------------------------------------------------
+Ran 143 tests in 2.490s
+
+OK (skipped=1)
+
+Exit: 0; runtime_seconds: 2.581

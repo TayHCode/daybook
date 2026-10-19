@@ -1,0 +1,6 @@
+Gitleaks version banner: version is set by build process
+Gitleaks binary SHA-256: 1f284c501d38538e569d562e9b637ef3af4fa734fb4728412d73f55de182ce57
+Command: gitleaks detect --source ~/projects/fv-sweep-20261018/daybook --log-opts='--all' --redact
+history: findings=0; exit=0
+Command: gitleaks detect --source ~/projects/fv-sweep-20261018/daybook --no-git --redact
+worktree: findings=0; exit=0

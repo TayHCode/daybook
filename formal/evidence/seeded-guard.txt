@@ -1,0 +1,4 @@
+Command: bash formal/run.sh
+FAIL: Guarded source changed: second_brain/calls.py; follow .claude/skills/verify-model-admission/SKILL.md
+
+Exit: 1

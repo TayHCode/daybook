@@ -1,0 +1,40 @@
+Command: bash formal/run.sh
+Source guard: 4/4 SHA-256 matches
+Command: bash formal/run.sh
+Python: 3.14.4
+openjdk version "21.0.12 (patch 1)" 2026-08-18 LTS
+OpenJDK Runtime Environment Temurin-21.0.12 (patch 1)+1 (build 21.0.12 (patch 1)+1-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.12 (patch 1)+1 (build 21.0.12 (patch 1)+1-LTS, mixed mode, sharing)
+TLA+ v1.8.0 artifact SHA-256: 15d103b7e5617780bcc904c0af12f1ad242e2b345c0301136c5be4588f17edac
+Bounds: 2 runners, 2 fixed daily slots, initial + one explicit retry, process crashes/restarts; exhaustive safety, no liveness
+TLC command: "<resolved-java>" -Xmx1g -XX:ActiveProcessorCount=1 -cp "$FV_TLA_JAR" tlc2.TLC -workers 1 -fp 0 -seed 1 -noGenerateSpecTE -config Admission.cfg Admission.tla (temporary cwd)
+TLC2 Version 2026.10.15.145915 (rev: 932d35e)
+Warning: Please run the Java VM, which executes TLC with a throughput optimized garbage collector, by passing the "-XX:+UseParallelGC" property.
+(Use the -nowarning option to disable this warning.)
+Running breadth-first search Model-Checking with fp 0 and seed 1 with 1 worker on 1 cores with 989MB heap and 64MB offheap memory [pid: 1720444] (Linux 7.0.0-38-generic amd64, Eclipse Adoptium 21.0.12 (patch 1) 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file <scratch>/Admission.tla
+Parsing file <tlc-modules>/Naturals.tla (jar:file:<tla-jar>!/tla2sany/StandardModules/Naturals.tla)
+Semantic processing of module Naturals
+Semantic processing of module Admission
+Linting of module Admission
+Starting... (2026-10-19 01:28:38)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-10-19 01:28:38.
+Model checking completed. No error has been found.
+  Estimates of the probability that TLC did not check all reachable states
+  because two distinct states had the same fingerprint:
+  calculated (optimistic):  val = 6.9E-13
+7249 states generated, 2976 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 31.
+The average outdegree of the complete state graph is 1 (minimum is 0, the maximum 4 and the 95th percentile is 4).
+Finished in 00s at (2026-10-19 01:28:38)
+1. Enter provider, then terminate process without finally: provider_entries=1, durable_attempts=1, authorized_limit=1
+2. Restart without --retry-failed: provider_entries=1, durable_attempts=1, authorized_limit=1
+Explicit retry after crash, crash again, third retry suppressed: provider_entries=2, durable_attempts=2, authorized_limit=2
+Completed slot never repeats, including --retry-failed: provider_entries=1, durable_attempts=1, authorized_limit=1
+Preflight failure consumes nothing; later recovery gets first attempt: provider_entries=1, durable_attempts=1, authorized_limit=1
+Contending runner returns locked; later runner calls once: provider_entries=1, durable_attempts=1, authorized_limit=1
+Concrete correspondence: 5 scenarios passed
+Result: PASS; property AuthorizedAttempts; runtime_seconds=1.329
+
+Exit: 0; runtime_seconds: 1.370

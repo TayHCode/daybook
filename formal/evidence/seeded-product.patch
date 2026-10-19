@@ -1,0 +1,13 @@
+diff --git a/second_brain/calls.py b/second_brain/calls.py
+index 60aa8cb..34aacbe 100644
+--- a/second_brain/calls.py
++++ b/second_brain/calls.py
+@@ -65,7 +65,7 @@ class Ledger:
+         if hasattr(self.model, 'timeout'):
+             self.model.timeout = min(self.config['model_timeout'], remaining - 15)
+         self.budget[slot] = {'status': 'attempted', 'at': self.now.isoformat(), 'attempts': attempts + 1}
+-        write(self.root / 'calls.json', self.budget)
++        # SCRATCH BUG: pre-provider durable attempt write removed
+         self.attempts += 1
+         stage = 'model.overview' if key.startswith('daybook-overview.') else 'model.project'
+         try:
