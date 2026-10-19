@@ -1,0 +1,114 @@
+Command: bash formal/run.sh
+Source guard: 4/4 SHA-256 matches
+Command: bash formal/run.sh
+Python: 3.14.4
+openjdk version "21.0.12 (patch 1)" 2026-08-18 LTS
+OpenJDK Runtime Environment Temurin-21.0.12 (patch 1)+1 (build 21.0.12 (patch 1)+1-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.12 (patch 1)+1 (build 21.0.12 (patch 1)+1-LTS, mixed mode, sharing)
+TLA+ v1.8.0 artifact SHA-256: 15d103b7e5617780bcc904c0af12f1ad242e2b345c0301136c5be4588f17edac
+Bounds: 2 runners, 2 fixed daily slots, initial + one explicit retry, process crashes/restarts; exhaustive safety, no liveness
+TLC command: "<resolved-java>" -Xmx1g -XX:ActiveProcessorCount=1 -cp "$FV_TLA_JAR" tlc2.TLC -workers 1 -fp 0 -seed 1 -noGenerateSpecTE -config Admission.cfg Admission.tla (temporary cwd)
+TLC2 Version 2026.10.15.145915 (rev: 932d35e)
+Warning: Please run the Java VM, which executes TLC with a throughput optimized garbage collector, by passing the "-XX:+UseParallelGC" property.
+(Use the -nowarning option to disable this warning.)
+Running breadth-first search Model-Checking with fp 0 and seed 1 with 1 worker on 1 cores with 989MB heap and 64MB offheap memory [pid: 1720507] (Linux 7.0.0-38-generic amd64, Eclipse Adoptium 21.0.12 (patch 1) 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file <scratch>/Admission.tla
+Parsing file <tlc-modules>/Naturals.tla (jar:file:<tla-jar>!/tla2sany/StandardModules/Naturals.tla)
+Semantic processing of module Naturals
+Semantic processing of module Admission
+Linting of module Admission
+Starting... (2026-10-19 01:28:39)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-10-19 01:28:39.
+Error: Invariant AuthorizedAttempts is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+/\ unauthorized = FALSE
+/\ owner = 0
+/\ retry = <<FALSE, FALSE>>
+/\ calls = (project :> 0 @@ overview :> 0)
+/\ pc = <<"idle", "idle">>
+/\ chosen = <<project, project>>
+/\ local = << ( project :> [attempts |-> 0, status |-> "empty"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ),
+   ( project :> [attempts |-> 0, status |-> "empty"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ) >>
+/\ disk = ( project :> [attempts |-> 0, status |-> "empty"] @@
+  overview :> [attempts |-> 0, status |-> "empty"] )
+
+State 2: <Acquire(1) line 25, col 15 to line 27, col 78 of module Admission>
+/\ unauthorized = FALSE
+/\ owner = 1
+/\ retry = <<FALSE, FALSE>>
+/\ calls = (project :> 0 @@ overview :> 0)
+/\ pc = <<"read", "idle">>
+/\ chosen = <<project, project>>
+/\ local = << ( project :> [attempts |-> 0, status |-> "empty"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ),
+   ( project :> [attempts |-> 0, status |-> "empty"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ) >>
+/\ disk = ( project :> [attempts |-> 0, status |-> "empty"] @@
+  overview :> [attempts |-> 0, status |-> "empty"] )
+
+State 3: <Read(1,project,FALSE) line 31, col 16 to line 36, col 64 of module Admission>
+/\ unauthorized = FALSE
+/\ owner = 1
+/\ retry = <<FALSE, FALSE>>
+/\ calls = (project :> 0 @@ overview :> 0)
+/\ pc = <<"check", "idle">>
+/\ chosen = <<project, project>>
+/\ local = << ( project :> [attempts |-> 0, status |-> "empty"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ),
+   ( project :> [attempts |-> 0, status |-> "empty"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ) >>
+/\ disk = ( project :> [attempts |-> 0, status |-> "empty"] @@
+  overview :> [attempts |-> 0, status |-> "empty"] )
+
+State 4: <Admit(1) line 47, col 13 to line 51, col 76 of module Admission>
+/\ unauthorized = FALSE
+/\ owner = 1
+/\ retry = <<FALSE, FALSE>>
+/\ calls = (project :> 0 @@ overview :> 0)
+/\ pc = <<"persist", "idle">>
+/\ chosen = <<project, project>>
+/\ local = << ( project :> [attempts |-> 1, status |-> "attempted"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ),
+   ( project :> [attempts |-> 0, status |-> "empty"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ) >>
+/\ disk = ( project :> [attempts |-> 0, status |-> "empty"] @@
+  overview :> [attempts |-> 0, status |-> "empty"] )
+
+State 5: <Persist(1) line 56, col 15 to line 59, col 79 of module Admission>
+/\ unauthorized = FALSE
+/\ owner = 1
+/\ retry = <<FALSE, FALSE>>
+/\ calls = (project :> 0 @@ overview :> 0)
+/\ pc = <<"invoke", "idle">>
+/\ chosen = <<project, project>>
+/\ local = << ( project :> [attempts |-> 1, status |-> "attempted"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ),
+   ( project :> [attempts |-> 0, status |-> "empty"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ) >>
+/\ disk = ( project :> [attempts |-> 0, status |-> "empty"] @@
+  overview :> [attempts |-> 0, status |-> "empty"] )
+
+State 6: <Invoke(1) line 63, col 14 to line 68, col 63 of module Admission>
+/\ unauthorized = FALSE
+/\ owner = 1
+/\ retry = <<FALSE, FALSE>>
+/\ calls = (project :> 1 @@ overview :> 0)
+/\ pc = <<"outcome", "idle">>
+/\ chosen = <<project, project>>
+/\ local = << ( project :> [attempts |-> 1, status |-> "attempted"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ),
+   ( project :> [attempts |-> 0, status |-> "empty"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ) >>
+/\ disk = ( project :> [attempts |-> 0, status |-> "empty"] @@
+  overview :> [attempts |-> 0, status |-> "empty"] )
+
+54 states generated, 28 distinct states found, 7 states left on queue.
+The depth of the complete state graph search is 6.
+Finished in 00s at (2026-10-19 01:28:39)
+FAIL: TLC failed (exit 12); no baseline findings are recorded
+
+Exit: 1

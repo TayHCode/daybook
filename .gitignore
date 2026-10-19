@@ -15,3 +15,21 @@ scratch/
 .venv/
 build/
 daybook-demo/
+
+# Local formal tools and ephemeral TLC output; never vendor runtimes.
+*.jar
+*.jdk/
+formal/.work/
+formal/__pycache__/
+# Register only the requested verification skill under the ignored Claude tree.
+!.claude/
+.claude/*
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/verify-model-admission/
+
+# Generated TLC trace artifacts.
+*_TTrace_*.tla
+*_TTrace_*.bin
+*.trace
+states/

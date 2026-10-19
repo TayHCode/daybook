@@ -1,0 +1,7 @@
+Command: python3 formal/seed.py
+Source guard: 4/4 SHA-256 matches
+Scratch deletion caught by source guard, TLC invariant, and actual crash/restart probe.
+Restored exact product, configuration, and manifest bytes.
+Cold procedure passed; restored baseline exit 0. Evidence: formal/evidence/
+
+Exit: 0; runtime_seconds: 1.217

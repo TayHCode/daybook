@@ -1,7 +1,22 @@
 {
   "stdlib_only": true,
   "exclude": [],
-  "approvals": [],
+  "approvals": [
+    {
+      "scope": "metadata",
+      "kind": "email",
+      "path": "@commit/37ca31cc6a20",
+      "fingerprint": "cd29c5ac348a026a",
+      "reason": "Already public on main since 2026-10-10; history is not rewritten by owner decision 2026-10-18."
+    },
+    {
+      "scope": "metadata",
+      "kind": "email",
+      "path": "@commit/618ba26c935d",
+      "fingerprint": "cd29c5ac348a026a",
+      "reason": "Already public on main since 2026-10-12; history is not rewritten by owner decision 2026-10-18."
+    }
+  ],
   "quickstart": [
     {
       "file": "README.md",

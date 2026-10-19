@@ -1,0 +1,90 @@
+Error: Invariant AuthorizedAttempts is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+/\ unauthorized = FALSE
+/\ owner = 0
+/\ retry = <<FALSE, FALSE>>
+/\ calls = (project :> 0 @@ overview :> 0)
+/\ pc = <<"idle", "idle">>
+/\ chosen = <<project, project>>
+/\ local = << ( project :> [attempts |-> 0, status |-> "empty"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ),
+   ( project :> [attempts |-> 0, status |-> "empty"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ) >>
+/\ disk = ( project :> [attempts |-> 0, status |-> "empty"] @@
+  overview :> [attempts |-> 0, status |-> "empty"] )
+
+State 2: <Acquire(1) line 25, col 15 to line 27, col 78 of module Admission>
+/\ unauthorized = FALSE
+/\ owner = 1
+/\ retry = <<FALSE, FALSE>>
+/\ calls = (project :> 0 @@ overview :> 0)
+/\ pc = <<"read", "idle">>
+/\ chosen = <<project, project>>
+/\ local = << ( project :> [attempts |-> 0, status |-> "empty"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ),
+   ( project :> [attempts |-> 0, status |-> "empty"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ) >>
+/\ disk = ( project :> [attempts |-> 0, status |-> "empty"] @@
+  overview :> [attempts |-> 0, status |-> "empty"] )
+
+State 3: <Read(1,project,FALSE) line 31, col 16 to line 36, col 64 of module Admission>
+/\ unauthorized = FALSE
+/\ owner = 1
+/\ retry = <<FALSE, FALSE>>
+/\ calls = (project :> 0 @@ overview :> 0)
+/\ pc = <<"check", "idle">>
+/\ chosen = <<project, project>>
+/\ local = << ( project :> [attempts |-> 0, status |-> "empty"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ),
+   ( project :> [attempts |-> 0, status |-> "empty"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ) >>
+/\ disk = ( project :> [attempts |-> 0, status |-> "empty"] @@
+  overview :> [attempts |-> 0, status |-> "empty"] )
+
+State 4: <Admit(1) line 47, col 13 to line 51, col 76 of module Admission>
+/\ unauthorized = FALSE
+/\ owner = 1
+/\ retry = <<FALSE, FALSE>>
+/\ calls = (project :> 0 @@ overview :> 0)
+/\ pc = <<"persist", "idle">>
+/\ chosen = <<project, project>>
+/\ local = << ( project :> [attempts |-> 1, status |-> "attempted"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ),
+   ( project :> [attempts |-> 0, status |-> "empty"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ) >>
+/\ disk = ( project :> [attempts |-> 0, status |-> "empty"] @@
+  overview :> [attempts |-> 0, status |-> "empty"] )
+
+State 5: <Persist(1) line 56, col 15 to line 59, col 79 of module Admission>
+/\ unauthorized = FALSE
+/\ owner = 1
+/\ retry = <<FALSE, FALSE>>
+/\ calls = (project :> 0 @@ overview :> 0)
+/\ pc = <<"invoke", "idle">>
+/\ chosen = <<project, project>>
+/\ local = << ( project :> [attempts |-> 1, status |-> "attempted"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ),
+   ( project :> [attempts |-> 0, status |-> "empty"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ) >>
+/\ disk = ( project :> [attempts |-> 0, status |-> "empty"] @@
+  overview :> [attempts |-> 0, status |-> "empty"] )
+
+State 6: <Invoke(1) line 63, col 14 to line 68, col 63 of module Admission>
+/\ unauthorized = FALSE
+/\ owner = 1
+/\ retry = <<FALSE, FALSE>>
+/\ calls = (project :> 1 @@ overview :> 0)
+/\ pc = <<"outcome", "idle">>
+/\ chosen = <<project, project>>
+/\ local = << ( project :> [attempts |-> 1, status |-> "attempted"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ),
+   ( project :> [attempts |-> 0, status |-> "empty"] @@
+     overview :> [attempts |-> 0, status |-> "empty"] ) >>
+/\ disk = ( project :> [attempts |-> 0, status |-> "empty"] @@
+  overview :> [attempts |-> 0, status |-> "empty"] )
+
+54 states generated, 28 distinct states found, 7 states left on queue.
+The depth of the complete state graph search is 6.
+Finished in 00s at (2026-10-19 01:28:39)
+FAIL: TLC failed (exit 12); no baseline findings are recorded
