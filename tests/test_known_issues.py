@@ -46,7 +46,7 @@ class KnownIssuesTests(RunFixture):
                 competing = handoffs[0]['competing_handoffs']
                 self.assertEqual([c['text'] for c in competing], ['generic alternative'])
                 self.assertTrue(competing[0]['source'].startswith('session:'))
-                expected_source = 'session:' + fingerprint(['machine-a', tool, str(folder / 'a.jsonl')])[:16]
+                expected_source = 'session:' + fingerprint(['machine-a', tool, str((folder / 'a.jsonl').resolve())])[:16]
                 self.assertTrue(competing[0]['source'].startswith(expected_source + ':'))
                 self.assertEqual(coverage['machine-a'][tool]['version_conflicts_yesterday'], 1)
 
